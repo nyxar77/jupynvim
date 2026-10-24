@@ -439,6 +439,9 @@ local function spawn_client(cmd_vec, alias, trust)
     end,
   })
   if trust then table.insert(trust.spawns, client) end
+  -- A second notebook may open while Image.attach waits for the backend.
+  M.clients[alias] = client
+  if alias == "local" then M.client = client end
   -- Attach the controlling TTY for native Kitty graphics. Local mode is
   -- attempted first; for SSH-remote backends the local-mode attempt fails
   -- (backend is on a different host) and Image.attach auto-falls-back to
@@ -462,7 +465,6 @@ local function spawn_client(cmd_vec, alias, trust)
                    error = vim.log.levels.ERROR })[p.level or "info"] or vim.log.levels.INFO
     vim.notify("jupynvim: " .. tostring(p.text or ""), lvl)
   end)
-  M.clients[alias] = client
   return client
 end
 
